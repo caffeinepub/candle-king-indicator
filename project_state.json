@@ -1,11 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 11,
   "summary": "Trading indicator project inspired by 'Candle King' chart analyst YouTuber. The indicator should incorporate all of Candle King's concepts and generate real trading signals based on those concepts.",
   "architectural_notes": [
     "Indicator should be based on candlestick pattern analysis concepts taught by 'Candle King' YouTuber",
     "Must generate real-time buy/sell signals based on identified patterns",
-    "Live market data integration required — connect to a real-time price feed API (e.g., Binance WebSocket or similar) for live OHLC+Volume streaming"
+    "Live market data integration required — connect to a real-time price feed API (e.g., Binance WebSocket or similar) for live OHLC+Volume streaming",
+    "Candle King advanced concepts (MMC, After Effect, Ellipse, Arc, TBC, Triangle) must be integrated as confirmation layers in the composite signal aggregator"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -105,6 +106,46 @@
         "REQ-13"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-when-the-app-loads-automatically-enable-live-mode-with-btcusdt-selected-as-the-default-symbol-and-1h-as-the-default-timeframe-so-the-user-immediately-sees-a-live-running-btc-usdt-candlestick-chart-without-any-manual-steps",
+      "title": "When the app loads, automatically enable Live Mode with BTCUSDT selected as the default symbol and '1H' as the default timeframe, so the user immediately sees a live running BTC/USDT candlestick chart without any manual steps.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-smooth-real-time-candle-update-animation-to-the-candlestick-chart-so-that-when-new-live-data-arrives-the-rightmost-current-candle-visually-updates-in-place-price-movement-rather-than-redrawing-the-entire-chart-abruptly",
+      "title": "Add a smooth real-time candle update animation to the candlestick chart so that when new live data arrives, the rightmost (current) candle visually updates in place (price movement) rather than redrawing the entire chart abruptly.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-live-market-data-polling-interval-from-10-seconds-to-1-second-so-that-price-fluctuations-are-visible-in-real-time-the-live-price-ticker-the-current-rightmost-candle-s-close-price-and-the-live-price-line-on-the-candlestick-chart-must-all-refresh-every-second-to-reflect-the-latest-market-movement",
+      "title": "Increase the live market data polling interval from 10 seconds to 1 second so that price fluctuations are visible in real-time. The live price ticker, the current (rightmost) candle's close price, and the live price line on the candlestick chart must all refresh every second to reflect the latest market movement.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-candle-king-s-advanced-confirmation-concepts-as-additional-signal-confirmation-filters-in-the-frontend-analysis-pipeline-mmc-market-maker-concepts-detecting-liquidity-sweeps-and-stop-hunt-wicks-above-below-key-levels-after-effect-post-breakout-retest-confirmation-using-the-candle-immediately-after-a-breakout-candle-ellipse-price-consolidation-zone-detection-a-tight-range-of-5-candles-where-high-low-spread-is-less-than-1-of-price-arc-curved-price-trajectory-detection-progressive-higher-lows-in-an-upward-arc-or-lower-highs-in-a-downward-arc-over-a-10-candle-window-tbc-to-be-confirmed-flag-a-signal-as-tbc-when-overall-confidence-is-between-40-60-meaning-it-requires-the-next-candle-to-confirm-direction-and-triangle-ascending-descending-and-symmetrical-triangle-detection-using-converging-trendlines-over-at-least-8-candles-each-concept-must-return-a-confirmationsignal-object-with-a-name-type-bullish-bearish-neutral-confidence-boost-value-and-a-description-string",
+      "title": "Implement Candle King's advanced confirmation concepts as additional signal confirmation filters in the frontend analysis pipeline: MMC (Market Maker Concepts — detecting liquidity sweeps and stop-hunt wicks above/below key levels), After Effect (post-breakout retest confirmation using the candle immediately after a breakout candle), Ellipse (price consolidation zone detection: a tight range of 5+ candles where high-low spread is less than 1% of price), Arc (curved price trajectory detection: progressive higher lows in an upward arc or lower highs in a downward arc over a 10-candle window), TBC (To Be Confirmed — flag a signal as TBC when overall confidence is between 40–60%, meaning it requires the next candle to confirm direction), and Triangle (ascending, descending, and symmetrical triangle detection using converging trendlines over at least 8 candles). Each concept must return a ConfirmationSignal object with a name, type (BULLISH/BEARISH/NEUTRAL), confidence boost value, and a description string.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-overlay-buy-sell-signal-markers-directly-on-the-candlestick-chart-canvas-for-each-candle-where-a-buy-signal-is-detected-render-a-green-upward-pointing-arrow-below-the-candle-s-low-wick-for-each-candle-where-a-sell-signal-is-detected-render-a-red-downward-pointing-arrow-above-the-candle-s-high-wick-each-arrow-must-include-a-small-label-showing-the-dominant-pattern-name-e-g-hammer-engulfing-and-the-confidence-score-e-g-78-markers-must-be-drawn-as-part-of-the-existing-candlestickchart-canvas-rendering-pipeline-so-they-pan-and-zoom-in-sync-with-the-candles",
+      "title": "Overlay buy/sell signal markers directly on the candlestick chart canvas. For each candle where a BUY signal is detected, render a green upward-pointing arrow below the candle's low wick. For each candle where a SELL signal is detected, render a red downward-pointing arrow above the candle's high wick. Each arrow must include a small label showing the dominant pattern name (e.g., 'Hammer', 'Engulfing') and the confidence score (e.g., '78%'). Markers must be drawn as part of the existing CandlestickChart canvas rendering pipeline so they pan and zoom in sync with the candles.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -125,6 +166,30 @@
     {
       "id": "AR-3",
       "summary": "Connect the indicator to live market data (real-time price feeds) so signals are generated from live OHLC data instead of demo/manual data.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Show a live running BTC chart in the indicator with real-time candlestick updates",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Increase live price update frequency to every second so price fluctuations are visible in real-time",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add Candle King's advanced confirmation concepts to the signal engine: MMC (Market Maker Concepts), After Effect, Ellipse, Arc, TBC (To Be Confirmed), and Triangle patterns as additional confirmation filters",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Display buy/sell signals directly overlaid on the candlestick chart (e.g., arrows or labels above/below candles at signal points)",
       "reqIds": [],
       "status": "pending"
     }

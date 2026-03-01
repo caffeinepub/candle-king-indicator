@@ -12,12 +12,12 @@ import DataInputPanel from './components/DataInputPanel';
 import LivePriceTicker from './components/LivePriceTicker';
 import LiveStatusIndicator from './components/LiveStatusIndicator';
 
-import { OHLCCandle, FinalSignal, TrendDirection, EMAData } from './types/trading';
+import { OHLCCandle, FinalSignal, TrendDirection, EMAData, SignalMarker } from './types/trading';
 import { detectAllPatterns } from './lib/candlestick-patterns';
 import { getAllSupportResistanceZones } from './lib/support-resistance';
 import { calculateAllEMAs, detectTrend } from './lib/trend-analysis';
 import { getVolumeSpikes, hasVolumeConfirmation } from './lib/volume-analysis';
-import { aggregateSignals } from './lib/signal-aggregator';
+import { aggregateSignals, buildSignalMarkers } from './lib/signal-aggregator';
 import { useSaveSignalHistory } from './hooks/useQueries';
 import { useLiveMarketData } from './hooks/useLiveMarketData';
 import { LIVE_SYMBOLS } from './components/LiveSymbolSelector';
@@ -32,8 +32,10 @@ function runAnalysis(newCandles: OHLCCandle[]) {
   const patterns = detectAllPatterns(newCandles, lastIdx);
   const volConfirm = hasVolumeConfirmation(newCandles, lastIdx);
   const srZ = getAllSupportResistanceZones(newCandles);
-  const signal = aggregateSignals(patterns, trendDir, srZ, volConfirm, newCandles[lastIdx].close);
-  return { emas, trendDir, spikes, patterns, signal, srZ };
+  const signal = aggregateSignals(patterns, trendDir, srZ, volConfirm, newCandles[lastIdx].close, newCandles);
+  // Build signal markers for all historical candles
+  const markers = buildSignalMarkers(newCandles);
+  return { emas, trendDir, spikes, patterns, signal, srZ, markers };
 }
 
 export default function App() {
@@ -44,15 +46,16 @@ export default function App() {
   const [trend, setTrend] = useState<TrendDirection>('SIDEWAYS');
   const [emaData, setEmaData] = useState<EMAData>({ ema20: [], ema50: [], ema200: [] });
   const [volumeSpikes, setVolumeSpikes] = useState<boolean[]>([]);
+  const [signalMarkers, setSignalMarkers] = useState<SignalMarker[]>([]);
 
-  // Live mode state
-  const [liveMode, setLiveMode] = useState(false);
+  // Live mode state — enabled by default with BTCUSDT / 1H
+  const [liveMode, setLiveMode] = useState(true);
   const [liveSymbol, setLiveSymbol] = useState('BTCUSDT');
   const [liveTimeframe, setLiveTimeframe] = useState('1H');
 
   const saveSignalMutation = useSaveSignalHistory();
 
-  // Live market data hook
+  // Live market data hook — polls every 1 second
   const {
     data: liveCandles,
     isFetching: isLiveFetching,
@@ -65,26 +68,39 @@ export default function App() {
   });
 
   // Track previous live candles to avoid redundant re-analysis
-  const prevLiveCandlesRef = useRef<OHLCCandle[] | null>(null);
+  const prevCandlesLengthRef = useRef(0);
+  const prevSymbolRef = useRef(liveSymbol);
+  const prevTimeframeRef = useRef(liveTimeframe);
 
-  // When live candles arrive, run analysis pipeline
   useEffect(() => {
     if (!liveMode || !liveCandles || liveCandles.length === 0) return;
-    if (liveCandles === prevLiveCandlesRef.current) return;
-    prevLiveCandlesRef.current = liveCandles;
+
+    const symbolChanged = prevSymbolRef.current !== liveSymbol;
+    const timeframeChanged = prevTimeframeRef.current !== liveTimeframe;
+    const newCandleAppended = liveCandles.length !== prevCandlesLengthRef.current;
+    const needsFullAnalysis = symbolChanged || timeframeChanged || newCandleAppended;
+
+    prevSymbolRef.current = liveSymbol;
+    prevTimeframeRef.current = liveTimeframe;
+    prevCandlesLengthRef.current = liveCandles.length;
 
     const displaySymbol =
       LIVE_SYMBOLS.find(s => s.value === liveSymbol)?.label ?? liveSymbol;
 
-    const { emas, trendDir, spikes, signal } = runAnalysis(liveCandles);
-
-    setCandles(liveCandles);
-    setSymbol(displaySymbol);
-    setTimeframe(liveTimeframe);
-    setEmaData(emas);
-    setTrend(trendDir);
-    setVolumeSpikes(spikes);
-    setFinalSignal(signal);
+    if (needsFullAnalysis) {
+      const { emas, trendDir, spikes, signal, markers } = runAnalysis(liveCandles);
+      setCandles(liveCandles);
+      setSymbol(displaySymbol);
+      setTimeframe(liveTimeframe);
+      setEmaData(emas);
+      setTrend(trendDir);
+      setVolumeSpikes(spikes);
+      setFinalSignal(signal);
+      setSignalMarkers(markers);
+    } else {
+      // Lightweight update — only update candles array for chart redraw
+      setCandles(liveCandles);
+    }
   }, [liveCandles, liveMode, liveSymbol, liveTimeframe]);
 
   // Show toast on live fetch error
@@ -100,9 +116,11 @@ export default function App() {
   const handleLiveModeChange = useCallback((enabled: boolean) => {
     setLiveMode(enabled);
     if (!enabled) {
-      prevLiveCandlesRef.current = null;
+      prevCandlesLengthRef.current = 0;
+      prevSymbolRef.current = liveSymbol;
+      prevTimeframeRef.current = liveTimeframe;
     }
-  }, []);
+  }, [liveSymbol, liveTimeframe]);
 
   const srZones = useMemo(() => getAllSupportResistanceZones(candles), [candles]);
 
@@ -119,11 +137,12 @@ export default function App() {
 
     if (newCandles.length === 0) return;
 
-    const { emas, trendDir, spikes, patterns, signal } = runAnalysis(newCandles);
+    const { emas, trendDir, spikes, patterns, signal, markers } = runAnalysis(newCandles);
     setEmaData(emas);
     setTrend(trendDir);
     setVolumeSpikes(spikes);
     setFinalSignal(signal);
+    setSignalMarkers(markers);
 
     toast.success(`Analysis complete — ${patterns.length} pattern(s) detected`, {
       description: `${sym} ${tf} | Signal: ${signal.signalType} (${signal.confidence}%)`,
@@ -182,7 +201,6 @@ export default function App() {
             </div>
           </div>
         )}
-        {/* Live indicator in header */}
         <LiveStatusIndicator
           isLive={liveMode}
           isError={isLiveError}
@@ -243,6 +261,9 @@ export default function App() {
                   emaData={emaData}
                   patternSignals={patternSignals}
                   srZones={srZones}
+                  signalMarkers={signalMarkers}
+                  isLive={liveMode}
+                  isLiveFetching={isLiveFetching}
                 />
               </div>
               <div className="h-24 border-t border-border shrink-0">

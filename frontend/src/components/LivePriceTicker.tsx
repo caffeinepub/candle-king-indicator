@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useTickerData } from '../hooks/useTickerData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TrendingUp, TrendingDown } from 'lucide-react';
@@ -22,6 +22,23 @@ function getDisplaySymbol(binanceSymbol: string): string {
 
 export default function LivePriceTicker({ symbol, isLive }: LivePriceTickerProps) {
   const { data: ticker, isLoading, isError } = useTickerData({ symbol, enabled: isLive });
+
+  // Flash highlight when price changes
+  const prevPriceRef = useRef<number | null>(null);
+  const [flashClass, setFlashClass] = useState('');
+
+  useEffect(() => {
+    if (!ticker) return;
+    const prev = prevPriceRef.current;
+    if (prev !== null && prev !== ticker.lastPrice) {
+      const isUp = ticker.lastPrice > prev;
+      setFlashClass(isUp ? 'text-bull' : 'text-bear');
+      const t = setTimeout(() => setFlashClass(''), 400);
+      prevPriceRef.current = ticker.lastPrice;
+      return () => clearTimeout(t);
+    }
+    prevPriceRef.current = ticker.lastPrice;
+  }, [ticker?.lastPrice]);
 
   if (!isLive) return null;
 
@@ -53,8 +70,12 @@ export default function LivePriceTicker({ symbol, isLive }: LivePriceTickerProps
         {getDisplaySymbol(symbol)}
       </span>
 
-      {/* Last Price */}
-      <span className="text-sm font-mono font-bold text-foreground shrink-0 tabular-nums">
+      {/* Last Price — flashes on change */}
+      <span
+        className={`text-sm font-mono font-bold shrink-0 tabular-nums transition-colors duration-300 ${
+          flashClass || 'text-foreground'
+        }`}
+      >
         ${formatPrice(ticker.lastPrice)}
       </span>
 

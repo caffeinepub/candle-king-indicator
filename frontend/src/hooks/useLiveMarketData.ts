@@ -25,7 +25,7 @@ export function useLiveMarketData({
   symbol,
   timeframe,
   enabled,
-  refetchInterval = 10_000,
+  refetchInterval = 1_000,
 }: UseLiveMarketDataOptions) {
   const interval = toBinanceInterval(timeframe);
 
@@ -37,7 +37,7 @@ export function useLiveMarketData({
     },
     enabled,
     refetchInterval: enabled ? refetchInterval : false,
-    staleTime: 8_000,
+    staleTime: 500,
     retry: 2,
   });
 }

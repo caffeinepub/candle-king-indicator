@@ -64,7 +64,8 @@ export default function DataInputPanel({
   const [manualSymbol, setManualSymbol] = useState('BTC/USDT');
   const [manualTimeframe, setManualTimeframe] = useState('1H');
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Start expanded when live mode is on (default), so user sees live controls immediately
+  const [isExpanded, setIsExpanded] = useState(liveMode);
 
   const handleLoadDemo = () => {
     setError(null);
@@ -202,21 +203,23 @@ export default function DataInputPanel({
                 </div>
               )}
 
-              {/* Buttons */}
+              {/* Actions */}
               <div className="flex gap-2">
                 <Button
-                  onClick={handleLoadDemo}
+                  size="sm"
                   variant="outline"
-                  className="flex-1 bg-gold/10 hover:bg-gold/20 text-gold border-gold/30 font-mono text-xs h-8"
+                  onClick={handleLoadDemo}
+                  className="flex-1 border-gold/40 text-gold hover:bg-gold/10 font-mono text-xs h-8"
                 >
-                  <Play className="w-3.5 h-3.5 mr-1.5" />
-                  Load Demo (BTC/USDT)
+                  Load Demo
                 </Button>
                 <Button
+                  size="sm"
                   onClick={handleParseCSV}
-                  className="flex-1 bg-gold hover:bg-gold-bright text-surface-1 font-mono text-xs h-8 font-semibold"
+                  className="flex-1 bg-gold hover:bg-gold/90 text-background font-mono text-xs h-8"
                 >
-                  Analyze CSV
+                  <Play className="w-3 h-3 mr-1" />
+                  Analyze
                 </Button>
               </div>
             </>

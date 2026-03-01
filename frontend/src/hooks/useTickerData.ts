@@ -10,14 +10,14 @@ interface UseTickerDataOptions {
 export function useTickerData({
   symbol,
   enabled,
-  refetchInterval = 10_000,
+  refetchInterval = 1_000,
 }: UseTickerDataOptions) {
   return useQuery<BinanceTicker>({
     queryKey: ['ticker24hr', symbol],
     queryFn: () => fetchTicker24hr(symbol),
     enabled,
     refetchInterval: enabled ? refetchInterval : false,
-    staleTime: 8_000,
+    staleTime: 500,
     retry: 2,
   });
 }

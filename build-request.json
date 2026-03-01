@@ -1,84 +1,39 @@
 {
   "kind": "build_request",
-  "title": "Connect indicator to live market data (real-time price feed)",
+  "title": "Overlay buy/sell signal arrows/labels directly on the candlestick chart",
   "projectName": "Candle King Indicator",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-11",
-      "text": "Integrate a live market data feed into the frontend by polling a public REST API (e.g., Binance public REST API: https://api.binance.com/api/v3/klines) at a configurable interval (default: 10 seconds) to fetch the latest OHLC+Volume candles for the selected symbol and timeframe. Map the API response to the existing OHLCCandle type and replace the current static/demo data with the live feed when the user enables 'Live Mode'.",
+      "id": "REQ-18",
+      "text": "Overlay buy/sell signal markers directly on the candlestick chart canvas. For each candle where a BUY signal is detected, render a green upward-pointing arrow below the candle's low wick. For each candle where a SELL signal is detected, render a red downward-pointing arrow above the candle's high wick. Each arrow must include a small label showing the dominant pattern name (e.g., 'Hammer', 'Engulfing') and the confidence score (e.g., '78%'). Markers must be drawn as part of the existing CandlestickChart canvas rendering pipeline so they pan and zoom in sync with the candles.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "ise live market se connect kro"
+          "ise esa banao ki ye chart ke uper signal dey"
         ]
       },
       "acceptanceCriteria": [
-        "A 'Live Mode' toggle is visible in the DataInputPanel or header area.",
-        "When Live Mode is enabled, the app polls the Binance public klines endpoint every 10 seconds for the selected symbol (e.g., BTCUSDT) and timeframe.",
-        "Fetched candles are mapped to OHLCCandle format and passed through all existing analysis pipelines (patterns, EMA, trend, volume, S/R, signal aggregation).",
-        "The candlestick chart and signal display update automatically with each new data fetch without requiring manual user action.",
-        "A visible 'LIVE' status indicator (e.g., pulsing green dot) is shown when live mode is active.",
-        "When Live Mode is disabled, the app falls back to the existing manual/demo data entry behavior.",
-        "Fetch errors are handled gracefully with a toast notification and the last successful data remains displayed."
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "text": "Add a symbol selector in Live Mode that allows the user to choose from a preset list of popular trading pairs (e.g., BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT) and maps each symbol + timeframe selection to the correct Binance klines API parameters (symbol and interval query params).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "ise live market se connect kro"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A dropdown or tab selector for symbol is shown when Live Mode is active.",
-        "Supported symbols include at least: BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT.",
-        "Timeframe selector values (1m, 5m, 15m, 1H, 4H, Daily) are correctly mapped to Binance interval values (1m, 5m, 15m, 1h, 4h, 1d).",
-        "Changing symbol or timeframe in Live Mode immediately triggers a fresh data fetch and re-runs all analysis pipelines."
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "text": "Display a real-time price ticker in the dashboard header showing the current last price, 24h change percentage, and 24h high/low for the active live symbol, fetched from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr). Update this ticker every 10 seconds when Live Mode is active.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "ise live market se connect kro"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A price ticker strip is visible in the header when Live Mode is enabled.",
-        "Ticker shows: symbol name, last price (monospace font), 24h change % (green if positive, red if negative), 24h high, and 24h low.",
-        "Ticker updates every 10 seconds without a full page reload.",
-        "Ticker is hidden or shows a placeholder when Live Mode is disabled."
+        "A green upward arrow appears below the low of any candle that produced a BUY signal.",
+        "A red downward arrow appears above the high of any candle that produced a SELL signal.",
+        "Each signal marker displays the dominant pattern name and confidence score as a small text label.",
+        "Signal markers pan and zoom in sync with the candlestick chart (they are part of the canvas draw cycle).",
+        "No signal marker is rendered for NEUTRAL or TBC signals that did not reach a clear BUY/SELL threshold.",
+        "Markers do not obscure price data and are visually distinct from EMA lines and support/resistance bands."
       ]
     }
   ],
   "constraints": [
-    "Only use Binance public REST API endpoints — no API key or authentication required.",
-    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Do not alter the existing OHLCCandle type interface in frontend/src/types/trading.ts — map API data to the existing type.",
-    "No WebSocket or real-time streaming — use polling only.",
-    "All analysis (patterns, EMA, trend, volume, S/R, signal aggregation) must continue to run on the fetched live data using existing library functions unchanged."
+    "Signal markers must be drawn on the existing CandlestickChart canvas — do not create a separate overlay element.",
+    "Do not modify any file under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui."
   ],
   "nonGoals": [
-    "No trading execution or order placement functionality.",
-    "No authenticated Binance account features (no API key management, no private endpoints).",
-    "No financial advice or guarantee of signal accuracy — existing disclaimer behavior must remain.",
-    "No backend changes for live data — all market data fetching stays on the frontend.",
-    "No WebSocket or push-based real-time streaming.",
-    "No support for exchanges other than Binance public API in this iteration."
+    "Adding new signal logic or changing the signal aggregation algorithm.",
+    "Showing signal markers on the volume sub-chart.",
+    "Adding click-to-inspect popup for signal markers in this iteration."
   ],
   "imageRequirements": {
     "required": [],

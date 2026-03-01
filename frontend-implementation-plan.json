@@ -1,119 +1,39 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Connect indicator to live market data (real-time price feed)",
+  "title": "Overlay buy/sell signal arrows/labels directly on the candlestick chart",
   "requirements": [
     {
-      "id": "REQ-11",
-      "summary": "Integrate live market data feed with configurable polling to fetch OHLC candles from Binance public REST API",
+      "id": "REQ-18",
+      "summary": "Overlay buy/sell signal markers directly on the candlestick chart canvas with pattern names and confidence scores",
       "acceptanceCriteria": [
-        "A 'Live Mode' toggle is visible in the DataInputPanel or header area.",
-        "When Live Mode is enabled, the app polls the Binance public klines endpoint every 10 seconds for the selected symbol (e.g., BTCUSDT) and timeframe.",
-        "Fetched candles are mapped to OHLCCandle format and passed through all existing analysis pipelines (patterns, EMA, trend, volume, S/R, signal aggregation).",
-        "The candlestick chart and signal display update automatically with each new data fetch without requiring manual user action.",
-        "A visible 'LIVE' status indicator (e.g., pulsing green dot) is shown when live mode is active.",
-        "When Live Mode is disabled, the app falls back to the existing manual/demo data entry behavior.",
-        "Fetch errors are handled gracefully with a toast notification and the last successful data remains displayed."
+        "A green upward arrow appears below the low of any candle that produced a BUY signal.",
+        "A red downward arrow appears above the high of any candle that produced a SELL signal.",
+        "Each signal marker displays the dominant pattern name and confidence score as a small text label.",
+        "Signal markers pan and zoom in sync with the candlestick chart (they are part of the canvas draw cycle).",
+        "No signal marker is rendered for NEUTRAL or TBC signals that did not reach a clear BUY/SELL threshold.",
+        "Markers do not obscure price data and are visually distinct from EMA lines and support/resistance bands."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/services/binance-api.ts",
-          "operation": "create",
-          "description": "Create a new service module that exports functions to fetch klines from Binance public REST API (https://api.binance.com/api/v3/klines) and map the response array format [[timestamp, open, high, low, close, volume, ...]] to the existing OHLCCandle interface. Include error handling with typed error responses and retry logic for network failures."
-        },
-        {
-          "path": "frontend/src/hooks/useLiveMarketData.ts",
-          "operation": "create",
-          "description": "Create a custom React hook that manages live data polling state using useQuery with a configurable refetchInterval (default 10000ms). The hook should accept symbol and timeframe parameters, call the binance-api service, handle loading/error states, and return the mapped OHLCCandle array. Include cleanup logic to stop polling when the component unmounts or Live Mode is disabled."
-        },
-        {
-          "path": "frontend/src/components/DataInputPanel.tsx",
+          "path": "frontend/src/types/trading.ts",
           "operation": "modify",
-          "description": "Add a 'Live Mode' toggle switch (using shadcn/ui Switch component) to the existing DataInputPanel. When toggled on, hide the CSV paste textarea and demo data button, and show the live mode controls (symbol selector and live status indicator). Wire the toggle state to trigger live data fetching via the useLiveMarketData hook. Ensure the panel remains collapsible and maintains existing symbol/timeframe selector behavior."
+          "description": "Add a new SignalMarker interface to represent a buy/sell signal marker with position, type (BUY/SELL), pattern name, confidence score, and candle index. This type will be used to pass signal data to the CandlestickChart component for rendering."
         },
         {
-          "path": "frontend/src/components/LiveStatusIndicator.tsx",
-          "operation": "create",
-          "description": "Create a new component that displays a pulsing green dot with 'LIVE' text when live mode is active and data is being fetched successfully. Add error state styling (red dot with 'ERROR' text) when fetch fails. Use Tailwind CSS animations for the pulsing effect and ensure the indicator is visible but non-intrusive in the UI layout."
+          "path": "frontend/src/lib/signal-aggregator.ts",
+          "operation": "modify",
+          "description": "Modify the aggregateFinalSignal function to return an array of SignalMarker objects alongside the FinalSignal. For each candle in the historical data, if the aggregated signal is BUY or SELL (not NEUTRAL or TBC-only), create a SignalMarker entry with the candle's index, low/high price, signal type, dominant pattern name, and confidence score. Store these markers for consumption by the chart component."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Integrate the useLiveMarketData hook into the main App component. Add state to track whether Live Mode is enabled. When Live Mode is active, replace the manual candle data with live-fetched data from the hook and ensure all existing analysis pipelines (patterns, EMA, trend, volume, S/R, signal aggregation) run on the live data automatically. Add error handling to display toast notifications for fetch failures using the existing toast system, and ensure the last successful data remains displayed on error."
+          "description": "Update the App component to collect SignalMarker data during the technical analysis pass. Pass the array of signal markers as a new prop (signalMarkers) to the CandlestickChart component. Ensure signal markers are regenerated only when candles change or a new technical analysis run occurs, to avoid unnecessary recomputation."
         },
         {
-          "path": "frontend/src/lib/timeframe-mapper.ts",
-          "operation": "create",
-          "description": "Create a utility module that maps the application's timeframe values (1m, 5m, 15m, 1H, 4H, Daily) to Binance API interval parameter values (1m, 5m, 15m, 1h, 4h, 1d). Export a function that takes the app timeframe string and returns the corresponding Binance interval string, with validation to ensure only supported timeframes are used."
-        }
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "summary": "Add symbol selector for Live Mode with preset popular trading pairs and correct API parameter mapping",
-      "acceptanceCriteria": [
-        "A dropdown or tab selector for symbol is shown when Live Mode is active.",
-        "Supported symbols include at least: BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT.",
-        "Timeframe selector values (1m, 5m, 15m, 1H, 4H, Daily) are correctly mapped to Binance interval values (1m, 5m, 15m, 1h, 4h, 1d).",
-        "Changing symbol or timeframe in Live Mode immediately triggers a fresh data fetch and re-runs all analysis pipelines."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/LiveSymbolSelector.tsx",
-          "operation": "create",
-          "description": "Create a new component that renders a dropdown selector (using shadcn/ui Select component) for choosing trading pairs. Include at least BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, and XRPUSDT as preset options. Display the selected symbol prominently with proper formatting (e.g., 'BTC/USDT'). The component should accept an onChange callback that triggers when the user selects a different symbol."
-        },
-        {
-          "path": "frontend/src/components/DataInputPanel.tsx",
+          "path": "frontend/src/components/CandlestickChart.tsx",
           "operation": "modify",
-          "description": "Integrate the LiveSymbolSelector component into the DataInputPanel. Show the symbol selector only when Live Mode is enabled. Wire the symbol selector's onChange callback to update the symbol state in App.tsx and trigger a fresh data fetch via the useLiveMarketData hook. Ensure the existing symbol text input is hidden when Live Mode is active and the timeframe selector remains visible with proper mapping via the timeframe-mapper utility."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add state management for the selected live symbol (default to BTCUSDT). Pass the selected symbol and timeframe to the useLiveMarketData hook. Ensure that when either symbol or timeframe changes in Live Mode, the hook re-fetches data immediately and all analysis pipelines (patterns, EMA, trend, volume, S/R, signal aggregation) re-run automatically with the new data."
-        },
-        {
-          "path": "frontend/src/services/binance-api.ts",
-          "operation": "modify",
-          "description": "Update the klines fetch function to accept symbol and interval parameters as arguments. Construct the API URL with proper query parameters (symbol, interval, limit=100) to fetch the last 100 candles for the selected trading pair and timeframe. Ensure the symbol is passed exactly as provided (e.g., 'BTCUSDT') without modification."
-        }
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "summary": "Display real-time price ticker in dashboard header showing current price, 24h change, and high/low",
-      "acceptanceCriteria": [
-        "A price ticker strip is visible in the header when Live Mode is enabled.",
-        "Ticker shows: symbol name, last price (monospace font), 24h change % (green if positive, red if negative), 24h high, and 24h low.",
-        "Ticker updates every 10 seconds without a full page reload.",
-        "Ticker is hidden or shows a placeholder when Live Mode is disabled."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/services/binance-api.ts",
-          "operation": "modify",
-          "description": "Add a new function to fetch 24-hour ticker statistics from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr?symbol=<SYMBOL>). Map the API response fields (lastPrice, priceChangePercent, highPrice, lowPrice) to a typed interface. Include error handling for network failures and invalid symbols."
-        },
-        {
-          "path": "frontend/src/hooks/useTickerData.ts",
-          "operation": "create",
-          "description": "Create a custom React hook that polls the Binance 24hr ticker endpoint every 10 seconds using useQuery with refetchInterval. Accept the symbol parameter and return ticker data (last price, 24h change %, high, low) with loading and error states. Only enable polling when Live Mode is active."
-        },
-        {
-          "path": "frontend/src/components/LivePriceTicker.tsx",
-          "operation": "create",
-          "description": "Create a new component that displays the real-time price ticker strip. Show the symbol name, last price in monospace font (e.g., JetBrains Mono), 24h change percentage with conditional color styling (green for positive using text-bull, red for negative using text-bear), and 24h high/low values. Use the useTickerData hook to fetch and display live data. Add smooth fade-in animation when data updates. Include a loading skeleton state and hide the ticker when Live Mode is disabled."
-        },
-        {
-          "path": "frontend/src/components/DashboardLayout.tsx",
-          "operation": "modify",
-          "description": "Integrate the LivePriceTicker component into the header section of the DashboardLayout. Position the ticker prominently (e.g., top-right of the header or as a banner strip below the main header). Ensure the ticker is only rendered when Live Mode is active by passing the liveMode state as a prop. Maintain the existing layout structure and ensure the ticker does not interfere with other header elements like the title or navigation."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Pass the liveMode and selected symbol state down to the DashboardLayout component so the LivePriceTicker can conditionally render and fetch the correct ticker data. Ensure the ticker polling starts immediately when Live Mode is enabled and stops when it is disabled to prevent unnecessary API calls."
+          "description": "Add a signalMarkers prop (SignalMarker[]) to the CandlestickChart component. In the canvas draw cycle, after rendering candles and overlays, iterate through the signalMarkers array and render each marker: for BUY signals, draw a green upward-pointing triangle/arrow below the candle's low wick; for SELL signals, draw a red downward-pointing triangle/arrow above the candle's high wick. Each arrow should be followed by a small text label showing the pattern name and confidence percentage (e.g., 'Hammer 78%'). Use the existing price-to-canvas coordinate transformation so markers pan and zoom correctly. Ensure arrow size and label font are legible but not obtrusive, and use a slight background or stroke to keep labels readable over busy chart areas."
         }
       ]
     }

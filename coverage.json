@@ -1,90 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-03-01T19:05:02.151Z",
+  "generatedAt": "2026-03-01T20:04:30.232Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-11",
-        "summary": "Integrate a live market data feed into the frontend by polling a public REST API (e.g., Binance public REST API: https://api.binance.com/api/v3/klines) at a configurable interval (default: 10 seconds) to fetch the latest OHLC+Volume candles for the selected symbol and timeframe. Map the API response to the existing OHLCCandle type and replace the current static/demo data with the live feed when the user enables 'Live Mode'.",
+        "id": "REQ-18",
+        "summary": "Overlay buy/sell signal markers directly on the candlestick chart canvas. For each candle where a BUY signal is detected, render a green upward-pointing arrow below the candle's low wick. For each candle where a SELL signal is detected, render a red downward-pointing arrow above the candle's high wick. Each arrow must include a small label showing the dominant pattern name (e.g., 'Hammer', 'Engulfing') and the confidence score (e.g., '78%'). Markers must be drawn as part of the existing CandlestickChart canvas rendering pipeline so they pan and zoom in sync with the candles.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/services/binance-api.ts",
-          "frontend/src/hooks/useLiveMarketData.ts",
-          "frontend/src/components/DataInputPanel.tsx",
-          "frontend/src/components/LiveStatusIndicator.tsx",
+          "frontend/src/types/trading.ts",
+          "frontend/src/lib/signal-aggregator.ts",
           "frontend/src/App.tsx",
-          "frontend/src/lib/timeframe-mapper.ts"
+          "frontend/src/components/CandlestickChart.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/services/binance-api.ts",
-          "frontend/src/hooks/useLiveMarketData.ts",
-          "frontend/src/components/DataInputPanel.tsx",
-          "frontend/src/components/LiveStatusIndicator.tsx",
+          "frontend/src/types/trading.ts",
+          "frontend/src/lib/signal-aggregator.ts",
           "frontend/src/App.tsx",
-          "frontend/src/lib/timeframe-mapper.ts"
-        ]
-      },
-      {
-        "id": "REQ-12",
-        "summary": "Add a symbol selector in Live Mode that allows the user to choose from a preset list of popular trading pairs (e.g., BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT) and maps each symbol + timeframe selection to the correct Binance klines API parameters (symbol and interval query params).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/LiveSymbolSelector.tsx",
-          "frontend/src/components/DataInputPanel.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/services/binance-api.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/LiveSymbolSelector.tsx",
-          "frontend/src/components/DataInputPanel.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/services/binance-api.ts"
-        ]
-      },
-      {
-        "id": "REQ-13",
-        "summary": "Display a real-time price ticker in the dashboard header showing the current last price, 24h change percentage, and 24h high/low for the active live symbol, fetched from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr). Update this ticker every 10 seconds when Live Mode is active.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/services/binance-api.ts",
-          "frontend/src/hooks/useTickerData.ts",
-          "frontend/src/components/LivePriceTicker.tsx",
-          "frontend/src/components/DashboardLayout.tsx",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/services/binance-api.ts",
-          "frontend/src/hooks/useTickerData.ts",
-          "frontend/src/components/LivePriceTicker.tsx",
-          "frontend/src/components/DashboardLayout.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/components/CandlestickChart.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
-    "build-template/README.md",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
-    "frontend/src/components/DashboardLayout.tsx",
-    "frontend/src/components/DataInputPanel.tsx",
-    "frontend/src/components/LivePriceTicker.tsx",
-    "frontend/src/components/LiveStatusIndicator.tsx",
-    "frontend/src/components/LiveSymbolSelector.tsx",
-    "frontend/src/hooks/useLiveMarketData.ts",
-    "frontend/src/hooks/useTickerData.ts",
-    "frontend/src/lib/timeframe-mapper.ts",
-    "frontend/src/services/binance-api.ts",
+    "frontend/src/components/CandlestickChart.tsx",
+    "frontend/src/lib/signal-aggregator.ts",
+    "frontend/src/types/trading.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

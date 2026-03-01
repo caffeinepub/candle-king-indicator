@@ -1,12 +1,25 @@
-import { PatternSignal, TrendDirection, SupportResistanceZone, FinalSignal, SignalType } from '../types/trading';
+import { PatternSignal, TrendDirection, SupportResistanceZone, FinalSignal, SignalType, ConfirmationSignal, OHLCCandle, SignalMarker } from '../types/trading';
 import { isNearSRZone } from './support-resistance';
+import {
+  detectMMC,
+  detectAfterEffect,
+  detectEllipse,
+  detectArc,
+  detectTBC,
+  detectTriangle,
+} from './advanced-confirmations';
+import { detectAllPatterns } from './candlestick-patterns';
+import { getAllSupportResistanceZones } from './support-resistance';
+import { calculateAllEMAs, detectTrend } from './trend-analysis';
+import { hasVolumeConfirmation } from './volume-analysis';
 
 export function aggregateSignals(
   patternSignals: PatternSignal[],
   trend: TrendDirection,
   srZones: SupportResistanceZone[],
   volumeConfirmation: boolean,
-  currentPrice: number
+  currentPrice: number,
+  candles: OHLCCandle[] = []
 ): FinalSignal {
   const warnings: string[] = [];
 
@@ -56,7 +69,39 @@ export function aggregateSignals(
   const volumeScore = volumeConfirmation ? 15 : 0;
   if (!volumeConfirmation) warnings.push('No volume confirmation');
 
-  const totalConfidence = Math.min(100, Math.round(patternScore + trendScore + srScore + volumeScore));
+  const baseConfidence = Math.round(patternScore + trendScore + srScore + volumeScore);
+
+  // ── Advanced Candle King Confirmations ──────────────────────────────────────
+  const confirmations: ConfirmationSignal[] = [];
+
+  if (candles.length > 0) {
+    const mmcSignal = detectMMC(candles);
+    if (mmcSignal) confirmations.push(mmcSignal);
+
+    const aeSignal = detectAfterEffect(candles);
+    if (aeSignal) confirmations.push(aeSignal);
+
+    const ellipseSignal = detectEllipse(candles);
+    if (ellipseSignal) confirmations.push(ellipseSignal);
+
+    const arcSignal = detectArc(candles);
+    if (arcSignal) confirmations.push(arcSignal);
+
+    const triangleSignal = detectTriangle(candles);
+    if (triangleSignal) confirmations.push(triangleSignal);
+  }
+
+  // Sum confidence boosts from advanced confirmations
+  const confirmationBoost = confirmations.reduce((s, c) => s + c.confidenceBoost, 0);
+  const totalConfidence = Math.min(100, Math.max(0, baseConfidence + confirmationBoost));
+
+  // TBC check on final composite score
+  let tbcFlag = false;
+  const tbcSignal = detectTBC(totalConfidence);
+  if (tbcSignal) {
+    confirmations.push(tbcSignal);
+    tbcFlag = true;
+  }
 
   let signalType: SignalType = 'NEUTRAL';
   if (patternSignals.length > 0) {
@@ -76,5 +121,91 @@ export function aggregateSignals(
     },
     warnings,
     dominantPattern,
+    confirmations,
+    tbcFlag,
   };
+}
+
+/**
+ * Scans every candle in the dataset and returns SignalMarker entries for
+ * candles that produced a clear BUY or SELL signal (confidence >= 40,
+ * not NEUTRAL, not TBC-only).
+ *
+ * This is intentionally a lightweight pass: it only runs pattern detection
+ * per candle and uses a simplified scoring so it stays fast even for 200+
+ * candle datasets.
+ */
+export function buildSignalMarkers(candles: OHLCCandle[]): SignalMarker[] {
+  if (candles.length < 3) return [];
+
+  const markers: SignalMarker[] = [];
+  const emas = calculateAllEMAs(candles);
+  const srZones = getAllSupportResistanceZones(candles);
+
+  // Scan each candle (skip first 2 — need prior context for patterns)
+  for (let i = 2; i < candles.length; i++) {
+    const patterns = detectAllPatterns(candles, i);
+    if (patterns.length === 0) continue;
+
+    const buyPatterns = patterns.filter(p => p.signalType === 'BUY');
+    const sellPatterns = patterns.filter(p => p.signalType === 'SELL');
+
+    const buyScore = buyPatterns.length > 0
+      ? buyPatterns.reduce((s, p) => s + p.confidence, 0) / buyPatterns.length
+      : 0;
+    const sellScore = sellPatterns.length > 0
+      ? sellPatterns.reduce((s, p) => s + p.confidence, 0) / sellPatterns.length
+      : 0;
+
+    if (buyScore === 0 && sellScore === 0) continue;
+
+    const trend = detectTrend(candles.slice(0, i + 1), emas.ema20, emas.ema50, emas.ema200);
+    const volConfirm = hasVolumeConfirmation(candles, i);
+    const currentPrice = candles[i].close;
+
+    const netSignal = buyScore - sellScore;
+    let trendScore = 0;
+    if (trend === 'UP' && netSignal > 0) trendScore = 20;
+    else if (trend === 'DOWN' && netSignal < 0) trendScore = 20;
+    else if (trend === 'SIDEWAYS') trendScore = 10;
+
+    const nearZone = isNearSRZone(currentPrice, srZones);
+    let srScore = 0;
+    if (nearZone) {
+      if (nearZone.type === 'support' && netSignal > 0) srScore = 15;
+      else if (nearZone.type === 'resistance' && netSignal < 0) srScore = 15;
+      else srScore = 7;
+    }
+
+    const volumeScore = volConfirm ? 15 : 0;
+    const patternScore = Math.max(buyScore, sellScore) * 0.5;
+    const confidence = Math.min(100, Math.round(patternScore + trendScore + srScore + volumeScore));
+
+    if (confidence < 40) continue;
+
+    // Determine signal type
+    let signalType: 'BUY' | 'SELL' | null = null;
+    if (buyScore > sellScore) signalType = 'BUY';
+    else if (sellScore > buyScore) signalType = 'SELL';
+
+    if (!signalType) continue;
+
+    // TBC zone — skip ambiguous signals
+    if (confidence >= 40 && confidence <= 60) {
+      // Still show them but only if confidence is clearly above 50
+      if (confidence < 52) continue;
+    }
+
+    const topPattern = [...patterns].sort((a, b) => b.confidence - a.confidence)[0];
+
+    markers.push({
+      candleIndex: i,
+      price: signalType === 'BUY' ? candles[i].low : candles[i].high,
+      signalType,
+      patternName: topPattern.patternName,
+      confidence,
+    });
+  }
+
+  return markers;
 }
