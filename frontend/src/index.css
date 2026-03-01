@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.375rem;
+    --background: 0.12 0 0;
+    --foreground: 0.92 0.01 90;
+    --card: 0.16 0 0;
+    --card-foreground: 0.92 0.01 90;
+    --popover: 0.18 0 0;
+    --popover-foreground: 0.92 0.01 90;
+    --primary: 0.72 0.14 75;
+    --primary-foreground: 0.10 0 0;
+    --secondary: 0.22 0 0;
+    --secondary-foreground: 0.85 0.01 90;
+    --muted: 0.20 0 0;
+    --muted-foreground: 0.55 0.01 90;
+    --accent: 0.72 0.14 75;
+    --accent-foreground: 0.10 0 0;
+    --destructive: 0.60 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.28 0.01 90;
+    --input: 0.22 0.01 90;
+    --ring: 0.72 0.14 75;
+    --chart-1: 0.72 0.14 75;
+    --chart-2: 0.55 0.18 145;
+    --chart-3: 0.60 0.22 25;
+    --chart-4: 0.55 0.15 240;
+    --chart-5: 0.65 0.18 300;
+    --sidebar: 0.14 0 0;
+    --sidebar-foreground: 0.92 0.01 90;
+    --sidebar-primary: 0.72 0.14 75;
+    --sidebar-primary-foreground: 0.10 0 0;
+    --sidebar-accent: 0.20 0 0;
+    --sidebar-accent-foreground: 0.85 0.01 90;
+    --sidebar-border: 0.28 0.01 90;
+    --sidebar-ring: 0.72 0.14 75;
+
+    /* Custom tokens */
+    --gold: oklch(0.72 0.14 75);
+    --gold-dim: oklch(0.60 0.12 75);
+    --gold-bright: oklch(0.82 0.16 75);
+    --surface-1: oklch(0.14 0 0);
+    --surface-2: oklch(0.18 0 0);
+    --surface-3: oklch(0.22 0 0);
+    --bull-green: oklch(0.62 0.18 145);
+    --bear-red: oklch(0.58 0.22 25);
+    --neutral-grey: oklch(0.55 0.01 90);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    background-color: oklch(0.12 0 0);
+  }
+
+  .font-mono-data {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: oklch(0.16 0 0);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.30 0.01 90);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.72 0.14 75);
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: oklch(0.72 0.14 75);
+  }
+  .text-gold-bright {
+    color: oklch(0.82 0.16 75);
+  }
+  .text-bull {
+    color: oklch(0.62 0.18 145);
+  }
+  .text-bear {
+    color: oklch(0.58 0.22 25);
+  }
+  .bg-surface-1 {
+    background-color: oklch(0.14 0 0);
+  }
+  .bg-surface-2 {
+    background-color: oklch(0.18 0 0);
+  }
+  .bg-surface-3 {
+    background-color: oklch(0.22 0 0);
+  }
+  .border-gold {
+    border-color: oklch(0.72 0.14 75);
+  }
+  .border-gold-dim {
+    border-color: oklch(0.40 0.06 75);
+  }
+  .glow-gold {
+    box-shadow: 0 0 12px oklch(0.72 0.14 75 / 0.3);
+  }
+  .glow-bull {
+    box-shadow: 0 0 12px oklch(0.62 0.18 145 / 0.3);
+  }
+  .glow-bear {
+    box-shadow: 0 0 12px oklch(0.58 0.22 25 / 0.3);
+  }
+}

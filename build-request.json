@@ -1,0 +1,87 @@
+{
+  "kind": "build_request",
+  "title": "Connect indicator to live market data (real-time price feed)",
+  "projectName": "Candle King Indicator",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-11",
+      "text": "Integrate a live market data feed into the frontend by polling a public REST API (e.g., Binance public REST API: https://api.binance.com/api/v3/klines) at a configurable interval (default: 10 seconds) to fetch the latest OHLC+Volume candles for the selected symbol and timeframe. Map the API response to the existing OHLCCandle type and replace the current static/demo data with the live feed when the user enables 'Live Mode'.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "ise live market se connect kro"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A 'Live Mode' toggle is visible in the DataInputPanel or header area.",
+        "When Live Mode is enabled, the app polls the Binance public klines endpoint every 10 seconds for the selected symbol (e.g., BTCUSDT) and timeframe.",
+        "Fetched candles are mapped to OHLCCandle format and passed through all existing analysis pipelines (patterns, EMA, trend, volume, S/R, signal aggregation).",
+        "The candlestick chart and signal display update automatically with each new data fetch without requiring manual user action.",
+        "A visible 'LIVE' status indicator (e.g., pulsing green dot) is shown when live mode is active.",
+        "When Live Mode is disabled, the app falls back to the existing manual/demo data entry behavior.",
+        "Fetch errors are handled gracefully with a toast notification and the last successful data remains displayed."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Add a symbol selector in Live Mode that allows the user to choose from a preset list of popular trading pairs (e.g., BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT) and maps each symbol + timeframe selection to the correct Binance klines API parameters (symbol and interval query params).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "ise live market se connect kro"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A dropdown or tab selector for symbol is shown when Live Mode is active.",
+        "Supported symbols include at least: BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT.",
+        "Timeframe selector values (1m, 5m, 15m, 1H, 4H, Daily) are correctly mapped to Binance interval values (1m, 5m, 15m, 1h, 4h, 1d).",
+        "Changing symbol or timeframe in Live Mode immediately triggers a fresh data fetch and re-runs all analysis pipelines."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Display a real-time price ticker in the dashboard header showing the current last price, 24h change percentage, and 24h high/low for the active live symbol, fetched from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr). Update this ticker every 10 seconds when Live Mode is active.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "ise live market se connect kro"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A price ticker strip is visible in the header when Live Mode is enabled.",
+        "Ticker shows: symbol name, last price (monospace font), 24h change % (green if positive, red if negative), 24h high, and 24h low.",
+        "Ticker updates every 10 seconds without a full page reload.",
+        "Ticker is hidden or shows a placeholder when Live Mode is disabled."
+      ]
+    }
+  ],
+  "constraints": [
+    "Only use Binance public REST API endpoints — no API key or authentication required.",
+    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Do not alter the existing OHLCCandle type interface in frontend/src/types/trading.ts — map API data to the existing type.",
+    "No WebSocket or real-time streaming — use polling only.",
+    "All analysis (patterns, EMA, trend, volume, S/R, signal aggregation) must continue to run on the fetched live data using existing library functions unchanged."
+  ],
+  "nonGoals": [
+    "No trading execution or order placement functionality.",
+    "No authenticated Binance account features (no API key management, no private endpoints).",
+    "No financial advice or guarantee of signal accuracy — existing disclaimer behavior must remain.",
+    "No backend changes for live data — all market data fetching stays on the frontend.",
+    "No WebSocket or push-based real-time streaming.",
+    "No support for exchanges other than Binance public API in this iteration."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

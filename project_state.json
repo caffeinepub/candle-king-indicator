@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Trading indicator project inspired by 'Candle King' chart analyst YouTuber. The indicator should incorporate all of Candle King's concepts and generate real trading signals based on those concepts.",
+  "architectural_notes": [
+    "Indicator should be based on candlestick pattern analysis concepts taught by 'Candle King' YouTuber",
+    "Must generate real-time buy/sell signals based on identified patterns",
+    "Live market data integration required — connect to a real-time price feed API (e.g., Binance WebSocket or similar) for live OHLC+Volume streaming"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-build-a-candlestick-pattern-detection-engine-on-the-frontend-that-identifies-all-major-candle-king-concepts-doji-hammer-shooting-star-engulfing-bullish-bearish-morning-star-evening-star-pin-bar-inside-bar-marubozu-harami-three-white-soldiers-three-black-crows-dark-cloud-cover-piercing-line-and-tweezer-tops-bottoms-each-pattern-must-produce-a-signal-buy-sell-or-neutral-with-a-confidence-score",
+      "title": "Build a candlestick pattern detection engine on the frontend that identifies all major Candle King concepts: Doji, Hammer, Shooting Star, Engulfing (Bullish/Bearish), Morning Star, Evening Star, Pin Bar, Inside Bar, Marubozu, Harami, Three White Soldiers, Three Black Crows, Dark Cloud Cover, Piercing Line, and Tweezer Tops/Bottoms. Each pattern must produce a signal (BUY, SELL, or NEUTRAL) with a confidence score.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-support-resistance-zone-detection-based-on-candle-king-s-price-level-concepts-identify-swing-highs-lows-round-number-levels-and-previous-session-highs-lows-from-the-ohlc-data",
+      "title": "Implement support/resistance zone detection based on Candle King's price level concepts: identify swing highs/lows, round number levels, and previous session highs/lows from the OHLC data.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-trend-detection-using-candle-king-s-trend-analysis-concepts-higher-highs-higher-lows-for-uptrend-lower-highs-lower-lows-for-downtrend-and-sideways-market-detection-apply-ema-20-ema-50-and-ema-200-for-trend-confirmation",
+      "title": "Implement trend detection using Candle King's trend analysis concepts: higher highs/higher lows for uptrend, lower highs/lower lows for downtrend, and sideways market detection. Apply EMA 20, EMA 50, and EMA 200 for trend confirmation.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-volume-analysis-concepts-volume-spike-detection-volume-1-5-20-period-average-volume-confirmation-for-signals-and-low-volume-zone-flagging-signals-generated-during-volume-confirmation-carry-higher-confidence",
+      "title": "Implement volume analysis concepts: volume spike detection (volume > 1.5× 20-period average), volume confirmation for signals, and low-volume zone flagging. Signals generated during volume confirmation carry higher confidence.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-composite-signal-aggregator-that-combines-candlestick-pattern-signals-trend-direction-support-resistance-proximity-and-volume-confirmation-into-a-final-buy-sell-or-neutral-signal-with-an-overall-confidence-score-0-100-display-the-final-signal-prominently-with-a-colored-badge-and-confidence-meter",
+      "title": "Build a composite signal aggregator that combines candlestick pattern signals, trend direction, support/resistance proximity, and volume confirmation into a final BUY, SELL, or NEUTRAL signal with an overall confidence score (0–100). Display the final signal prominently with a colored badge and confidence meter.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-interactive-candlestick-chart-component-using-a-canvas-or-svg-renderer-that-displays-ohlc-candles-overlays-ema-lines-marks-detected-pattern-zones-with-labels-and-highlights-support-resistance-bands-include-a-volume-histogram-sub-chart-below-the-main-chart",
+      "title": "Create an interactive candlestick chart component using a canvas or SVG renderer that displays OHLC candles, overlays EMA lines, marks detected pattern zones with labels, and highlights support/resistance bands. Include a volume histogram sub-chart below the main chart.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-data-input-panel-that-allows-users-to-enter-or-paste-ohlc-volume-data-csv-or-manual-entry-select-a-trading-symbol-name-and-choose-a-timeframe-1m-5m-15m-1h-4h-daily-provide-a-demo-dataset-for-bitcoin-btc-usdt-so-users-can-test-the-indicator-immediately-without-entering-data",
+      "title": "Build a data input panel that allows users to enter or paste OHLC+Volume data (CSV or manual entry), select a trading symbol name, and choose a timeframe (1m, 5m, 15m, 1H, 4H, Daily). Provide a demo dataset for Bitcoin (BTC/USDT) so users can test the indicator immediately without entering data.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-signal-history-log-panel-that-displays-the-last-50-generated-signals-symbol-timeframe-pattern-name-signal-type-confidence-timestamp-retrieved-from-the-backend-allow-users-to-save-the-current-signal-to-history-with-one-click",
+      "title": "Build a signal history log panel that displays the last 50 generated signals (symbol, timeframe, pattern name, signal type, confidence, timestamp) retrieved from the backend. Allow users to save the current signal to history with one click.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-dark-professional-trading-terminal-visual-theme-with-a-black-dark-grey-background-gold-amber-accent-colors-referencing-candle-king-branding-clean-monospace-typography-for-price-data-and-a-dashboard-style-grid-layout-ensure-the-ui-feels-like-a-professional-charting-tool",
+      "title": "Apply a dark, professional trading terminal visual theme with a black/dark-grey background, gold/amber accent colors (referencing 'Candle King' branding), clean monospace typography for price data, and a dashboard-style grid layout. Ensure the UI feels like a professional charting tool.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-a-live-market-data-feed-into-the-frontend-by-polling-a-public-rest-api-e-g-binance-public-rest-api-https-api-binance-com-api-v3-klines-at-a-configurable-interval-default-10-seconds-to-fetch-the-latest-ohlc-volume-candles-for-the-selected-symbol-and-timeframe-map-the-api-response-to-the-existing-ohlccandle-type-and-replace-the-current-static-demo-data-with-the-live-feed-when-the-user-enables-live-mode",
+      "title": "Integrate a live market data feed into the frontend by polling a public REST API (e.g., Binance public REST API: https://api.binance.com/api/v3/klines) at a configurable interval (default: 10 seconds) to fetch the latest OHLC+Volume candles for the selected symbol and timeframe. Map the API response to the existing OHLCCandle type and replace the current static/demo data with the live feed when the user enables 'Live Mode'.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-symbol-selector-in-live-mode-that-allows-the-user-to-choose-from-a-preset-list-of-popular-trading-pairs-e-g-btcusdt-ethusdt-bnbusdt-solusdt-xrpusdt-and-maps-each-symbol-timeframe-selection-to-the-correct-binance-klines-api-parameters-symbol-and-interval-query-params",
+      "title": "Add a symbol selector in Live Mode that allows the user to choose from a preset list of popular trading pairs (e.g., BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT) and maps each symbol + timeframe selection to the correct Binance klines API parameters (symbol and interval query params).",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-a-real-time-price-ticker-in-the-dashboard-header-showing-the-current-last-price-24h-change-percentage-and-24h-high-low-for-the-active-live-symbol-fetched-from-the-binance-public-ticker-endpoint-https-api-binance-com-api-v3-ticker-24hr-update-this-ticker-every-10-seconds-when-live-mode-is-active",
+      "title": "Display a real-time price ticker in the dashboard header showing the current last price, 24h change percentage, and 24h high/low for the active live symbol, fetched from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr). Update this ticker every 10 seconds when Live Mode is active.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Build a trading indicator based on Candle King YouTuber's all chart analysis concepts that generates real buy/sell signals",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement a backend actor that stores indicator configurations and persists user-saved signal history. Expose query and update functions to save/retrieve signal records (symbol, timeframe, signal type, timestamp, confidence score).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Connect the indicator to live market data (real-time price feeds) so signals are generated from live OHLC data instead of demo/manual data.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Candle King Indicator",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

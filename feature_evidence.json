@@ -1,0 +1,74 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-integrate-a-live-market-data-feed-into-the-frontend-by-polling-a-public-rest-api-e-g-binance-public-rest-api-https-api-binance-com-api-v3-klines-at-a-configurable-interval-default-10-seconds-to-fetch-the-latest-ohlc-volume-candles-for-the-selected-symbol-and-timeframe-map-the-api-response-to-the-existing-ohlccandle-type-and-replace-the-current-static-demo-data-with-the-live-feed-when-the-user-enables-live-mode",
+      "featureTitle": "Integrate a live market data feed into the frontend by polling a public REST API (e.g., Binance public REST API: https://api.binance.com/api/v3/klines) at a configurable interval (default: 10 seconds) to fetch the latest OHLC+Volume candles for the selected symbol and timeframe. Map the API response to the existing OHLCCandle type and replace the current static/demo data with the live feed when the user enables 'Live Mode'.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/DataInputPanel.tsx",
+        "frontend/src/components/LiveStatusIndicator.tsx",
+        "frontend/src/hooks/useLiveMarketData.ts",
+        "frontend/src/lib/timeframe-mapper.ts",
+        "frontend/src/services/binance-api.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-symbol-selector-in-live-mode-that-allows-the-user-to-choose-from-a-preset-list-of-popular-trading-pairs-e-g-btcusdt-ethusdt-bnbusdt-solusdt-xrpusdt-and-maps-each-symbol-timeframe-selection-to-the-correct-binance-klines-api-parameters-symbol-and-interval-query-params",
+      "featureTitle": "Add a symbol selector in Live Mode that allows the user to choose from a preset list of popular trading pairs (e.g., BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT) and maps each symbol + timeframe selection to the correct Binance klines API parameters (symbol and interval query params).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/DataInputPanel.tsx",
+        "frontend/src/components/LiveSymbolSelector.tsx",
+        "frontend/src/services/binance-api.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-display-a-real-time-price-ticker-in-the-dashboard-header-showing-the-current-last-price-24h-change-percentage-and-24h-high-low-for-the-active-live-symbol-fetched-from-the-binance-public-ticker-endpoint-https-api-binance-com-api-v3-ticker-24hr-update-this-ticker-every-10-seconds-when-live-mode-is-active",
+      "featureTitle": "Display a real-time price ticker in the dashboard header showing the current last price, 24h change percentage, and 24h high/low for the active live symbol, fetched from the Binance public ticker endpoint (https://api.binance.com/api/v3/ticker/24hr). Update this ticker every 10 seconds when Live Mode is active.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/DashboardLayout.tsx",
+        "frontend/src/components/LivePriceTicker.tsx",
+        "frontend/src/hooks/useTickerData.ts",
+        "frontend/src/services/binance-api.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
